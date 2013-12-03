@@ -12,6 +12,9 @@ Just a dead-plain simple example of using PDO in PHP with mySQL
 6. ...
 7. Enjoy!
 
+# Testing
+All different actions like `INSERT`, `UPDATE` or `DELETE` can be found in `runTests()` method.
+
 # Contact
 If you have any questions regarding this project, feel free to open an issue or contact me directly:
 
