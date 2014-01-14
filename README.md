@@ -1,6 +1,11 @@
 # PDOExample
-This repository contains simple project that uses PDO as a database connector.
-Be aware, that it does not contain any client or serverside validations, but **it prevents SQL Injections**
+This repository contains simple project that uses `PDO` as a `mySQL` database connector.
+Be aware, that it does not contain any client or serverside validations, but **it prevents SQL Injections**.
+
+# Caution
+This repository was created only for `university project`. Basically, code quality is `@#@!` here and looks like an oldfashion spagetti code. If you came here for good practices, I suggest you to correct my code and submit a pull request.
+
+Code is a mix of Polish and English language, so watch your steps! :)
 
 # Installation
 1. Create a new mySQL database

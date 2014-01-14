@@ -143,6 +143,8 @@ function print_categories($object, $category_id)
 	$users = new Users();
 	$loggedIn = $users->loggedIn();
 
+	echo '<div class="category-container">';
+
 	$current_tree = $object->tree[$category_id];
 
 	$current_category = $object->categories[$category_id];
@@ -159,7 +161,9 @@ function print_categories($object, $category_id)
 	$string .= ' &nbsp;<strong>' .$current_category->category_name . '</strong> <i>[ID: ' . $category_id . ']</i>';
 	if ($loggedIn)
 		$string .= ' [<a href="edytuj.php?cat=' . $category_id . '">Edytuj</a>] [<a href="usun.php?katname=' . $category_id . '">Usuń</a>]';
-	$string .= ' [<a href="zadania.php?cat=' . $category_id . '">Zobacz zadania</a>] [<a href="dodaj.php?cat=' . $category_id . '">Rozwiń/Zwiń</a>]';
+	$string .= ' [<a href="zadania.php?cat=' . $category_id . '">Zobacz zadania</a>]';
+	if (!empty($current_tree))
+	 	$string .= '[<a href="#" class="togglecat">Rozwiń/Zwiń</a>]';
 	$string .= "</div>";
 	echo $string;
 
@@ -172,6 +176,7 @@ function print_categories($object, $category_id)
 		}
 		echo '</div>';
 	}
+	echo '</div>';
 
 }
 ?>
