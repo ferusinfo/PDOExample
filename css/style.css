@@ -1,0 +1,54 @@
+.spacer {
+	float: left;
+	width: 20px;
+	height: 20px;
+	background: #bdc3c7;
+	margin-right: 1px;
+}
+
+
+.displaycat {
+	float:left;
+	width: 100%;
+	height: 20px;
+	background: #ecf0f1;
+	border: 1px solid #bdc3c7;
+	margin-bottom: 3px;
+	padding: 5px;
+
+	font-size: 12px;
+}
+
+.category {
+	float: left;
+	width: 80%;
+}
+
+#main {
+	margin: 100px auto 0px auto;
+	width: 1000px;
+	height: 300px;
+}
+
+#right {
+	margin-top: 40px;
+}
+
+#links {
+}
+
+#links ul li {
+	display: inline;
+}
+
+.subcat {
+	/*display: none;*/
+}
+
+#newform-div, #moveform-div {
+	margin-right: 20px;
+}
+
+button {
+	margin-top: 10px;
+}

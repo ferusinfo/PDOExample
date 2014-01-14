@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(-1);
 // Open your config_template file, change the values and rename it to CONFIG.PHP
 include_once( __DIR__ . '/../config/config.php');
 
@@ -29,7 +32,6 @@ class Categories
 	{
 		// initialize pdo connection
 		$this->connectDB();
-		$this->runTests();
 		$this->getCategories();
 	}
 
@@ -209,6 +211,10 @@ class Categories
 	/* add a category */
 	public function addCategory($category_name, $category_parent_id = NULL)
 	{
+		if (isset($category_parent_id) && !$this->categoryExists($category_parent_id)) {
+			$category_parent_id = NULL;
+		}
+
 		try
 		{
 			$statement = $this->Db->prepare("INSERT INTO kat (nazwa, id_nadkat) VALUES (:catname, :parent)");
@@ -223,7 +229,7 @@ class Categories
 	}
 
 	/* move a category */
-	public function moveCategory($id_category, $id_new_parent = NULL)
+	public function moveCategory($id_category, $id_new_parent = null)
 	{
 		try
 		{
@@ -238,38 +244,87 @@ class Categories
 		}
 	}
 
+	/* edit a category */
+	public function editCategory($id_category, $nazwa, $parent)
+	{
+		if ($this->categoryExists($id_category))
+		{
+			try
+			{
+				$statement = $this->Db->prepare("UPDATE kat set id_nadkat = :parent, nazwa = :nazwa WHERE id_kat = :id");
+				$statement->bindValue(':id', $id_category, PDO::PARAM_INT);
+				$statement->bindValue(':nazwa', $nazwa, PDO::PARAM_STR);
+				$statement->bindValue(':parent', $parent, PDO::PARAM_INT);
+				$statement->execute();
+			}
+			catch (PDOException $e)
+			{
+				 trigger_error("Error in " . __METHOD__ . ": " . $e->getMessage(), E_USER_ERROR);
+			}
+		}
+	}
+
+	private function categoryExists($category_id)
+	{
+		$statement = $this->getCategory($category_id);
+		return ($statement->rowCount() > 0) ? true : false;
+	}
+
+	private function getCategory($category_id)
+	{
+		$statement = $this->Db->prepare("SELECT * FROM kat WHERE id_kat = :id");
+		$statement->bindValue(':id', $category_id, PDO::PARAM_INT);
+		$statement->execute();
+		return $statement;
+	}
+
+	public function fetchCategory($category_id)
+	{
+		if ($this->categoryExists($category_id))
+		{
+			$statement = $this->getCategory($category_id);
+			foreach ($statement as $row)
+				return new Category($row['id_kat'], $row['nazwa'], $row['id_nadkat']);
+		}
+	}
+
 	/* remove category */
-	public function removeCategory($category_id, $new_parent_id = NULL)
+	public function removeCategory($category_id)
 	{
 		$statement = null;
 
-		try
+		if ($this->categoryExists($category_id))
 		{
-			$statement = $this->Db->prepare("SELECT * FROM kat WHERE id_nadkat = :id");
-			$statement->bindValue(':id', $category_id, PDO::PARAM_INT);
-			$statement->execute();
-		}
-		catch (PDOException $e)
-		{
-			 trigger_error("Error MOVE in " . __METHOD__ . ": " . $e->getMessage(), E_USER_ERROR);
-		}
+			try
+			{
+				$statement = $this->Db->prepare("SELECT * FROM kat WHERE id_nadkat = :id");
+				$statement->bindValue(':id', $category_id, PDO::PARAM_INT);
+				$statement->execute();
+			}
+			catch (PDOException $e)
+			{
+				 trigger_error("Error MOVE in " . __METHOD__ . ": " . $e->getMessage(), E_USER_ERROR);
+			}
 
-		foreach ($statement as $row)
-		{
-			$this->moveCategory($row['id_kat'], $new_parent_id);
-		}
+			if ($statement->rowCount() > 0)
+			{
+				foreach ($statement as $row)
+				{
+					$this->moveCategory($row['id_kat']);
+				}
+			}
 
-		try
-		{
-			$statement = $this->Db->prepare("DELETE FROM kat WHERE id_kat = :id");
-			$statement->bindValue(':id', $category_id, PDO::PARAM_INT);
-			$statement->execute();
+			try
+			{
+				$statement = $this->Db->prepare("DELETE FROM kat WHERE id_kat = :id");
+				$statement->bindValue(':id', $category_id, PDO::PARAM_INT);
+				$statement->execute();
+			}
+			catch (PDOException $e)
+			{
+				 trigger_error("Error DELETE in " . __METHOD__ . ": " . $e->getMessage(), E_USER_ERROR);
+			}
 		}
-		catch (PDOException $e)
-		{
-			 trigger_error("Error DELETE in " . __METHOD__ . ": " . $e->getMessage(), E_USER_ERROR);
-		}
-
 	}
 
 	/* get full categories object */
@@ -306,7 +361,7 @@ class Category
 	public $id_parent;
 	public $category_level;
 
-	public function __construct($id, $name, $parent, $level)
+	public function __construct($id, $name, $parent, $level = null)
 	{
 		$this->id_category = $id;
 		$this->category_name = $name;
