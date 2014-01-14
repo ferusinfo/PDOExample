@@ -13,7 +13,11 @@ if (!isset($_GET['cat']) || empty($_GET['cat']))
 
 $exercises = new Exercises($_GET['cat']);
 $category = $exercises->getCategory();
-$exercise = $exercises->getExercises();
+$exercises_array = $exercises->getExercises();
+
+include_once('models/users.php');
+$users = new Users();
+$loggedIn = $users->loggedIn();
 
 ?>
 <!doctype html>
@@ -40,10 +44,15 @@ $exercise = $exercises->getExercises();
 <body>
 
 <div id="main" class="pure-g">
-	<div class="pure-u-1" id="links">
-		<h1>Zadania</h1>
+	<div class="pure-u-1">
+		<h1>Zadania - <?= $category->category_name ?></h1>
 	<div id="newform-div" class="pure-u-1-5">
 		<a href="index.php">Powrot do listy kategorii</a>
+		<?php if($loggedIn) {
+			echo '<a href="dodajzadanie.php?cat=' . $category->id_category . '">Dodaj zadanie</a>';
+		}
+		?>
+
 	</div>
 	</div>
 	<div class="pure-u-1" id="zadania">
@@ -53,13 +62,31 @@ $exercise = $exercises->getExercises();
 		            <th>#</th>
 		            <th>Nazwa</th>
 		            <th>Trudność</th>
-		            <th></th>
+		            <th>Akcja</th>
 		        </tr>
     		</thead>
     		<tbody>
+    			<?php if (empty($exercises_array)) { ?>
     			<tr>
     				<td colspan="4">Aktualnie brak zadań</td>
     			</tr>
+    			<?php } else {
+    				$i = 0;
+    				foreach ($exercises_array as $exe ) {
+    					$i++;
+    					echo "<tr>";
+    						echo "<td>" . $i . "</td>";
+    						echo "<td>" . $exe->name . "</td>";
+    						echo "<td>" . $exe->level . "</td>";
+    						echo "<td>[<a href=\"files/" . $exe->file. "\">Pobierz plik</a>]";
+    						if($loggedIn) {
+    							echo " [<a href=\"edytujzadanie.php?zad=" . $exe->id . "&cat=".$category->id_category."\">Edytuj zadanie</a>]";
+								echo " [<a href=\"usunzadanie.php?zad=" . $exe->id . "&cat=".$category->id_category."\">Usuń zadanie</a>]";
+							}
+							echo "</td>";
+    					echo "</tr>";
+    				}
+    			} ?>
     		</tbody>
     	</table>
 	</div>

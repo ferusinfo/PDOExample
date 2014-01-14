@@ -98,8 +98,7 @@ session_start();
 	<div id="newform-div" class="pure-u-1-5">
 		<?php
 		if ($loggedIn) {
-
-			echo "Zalogowany" . '<a href="logout.php">Wyloguj się!</a>';
+			echo '<a href="logout.php">Wyloguj się!</a>';
 		} else { ?>
 		<form action="login.php" method="post" class="pure-form pure-form-stacked">
     	<fieldset>

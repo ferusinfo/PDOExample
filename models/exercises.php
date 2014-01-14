@@ -14,7 +14,7 @@ class Exercises
 	/* Db handler */
 	private $Db;
 
-	private Category category;
+	private $category;
 	private $exercises = array();
 	private $category_id;
 
@@ -40,15 +40,15 @@ class Exercises
 		return $categories->fetchCategory($this->category_id);
 	}
 
-	public function addExercise($eCat, $eName, $eLevel, $eFile)
+	public function addExercise($eName, $eLevel, $eFile)
 	{
 		try
 		{
 			$statement = $this->Db->prepare("INSERT INTO zad (id_kat, nazwa, plik_pdf, trudnosc) VALUES (:catid, :ename, :epdf, :elevel)");
-			$statement->bindValue(':catid', $eCat, PDO::PARAM_INT);
+			$statement->bindValue(':catid', $this->category_id, PDO::PARAM_INT);
 			$statement->bindValue(':ename', $eName, PDO::PARAM_STR);
 			$statement->bindValue(':epdf', $eFile, PDO::PARAM_STR);
-			$statement->bindValue(':clevel', $eLevel, PDO::PARAM_INT);
+			$statement->bindValue(':elevel', $eLevel, PDO::PARAM_INT);
 			$statement->execute();
 		}
 		catch (PDOException $e)
@@ -57,7 +57,7 @@ class Exercises
 		}
 	}
 
-	private function getExercises()
+	public function getExercises()
 	{
 		try
 			{
@@ -71,10 +71,27 @@ class Exercises
 			}
 
 			foreach ($statement as $row) {
-				$this->exercises = new Exercise($row['id_zad'], $row['nazwa'], $row['plik_pdf'], $row['trudnosc']);
+				$this->exercises[] = new Exercise($row['id_zad'], $row['nazwa'], $row['plik_pdf'], $row['trudnosc']);
 			}
 
 		return $this->exercises;
+	}
+
+	public function getExercise($exercise_id)
+	{
+		try
+			{
+				$statement = $this->Db->prepare("SELECT * FROM zad WHERE id_zad = :id");
+				$statement->bindValue(':id', $exercise_id, PDO::PARAM_INT);
+				$statement->execute();
+			}
+			catch (PDOException $e)
+			{
+				 trigger_error("Error in " . __METHOD__ . ": " . $e->getMessage(), E_USER_ERROR);
+			}
+
+			foreach ($statement as $row)
+				return new Exercise($row['id_zad'], $row['nazwa'], $row['plik_pdf'], $row['trudnosc']);
 	}
 
 	public function editExercise($id_exercise, $eName, $eLevel)
